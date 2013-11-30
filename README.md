@@ -1,5 +1,6 @@
 TTT
 ===
 
-Socket tic tac toe
+Socket tic tac toe.
+
 Aww yeah!
