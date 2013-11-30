@@ -1,9 +1,9 @@
-import os, sys, subprocess, socket
+import subprocess, sys
 
 DRAW = -1
 NOT_OVER = 0
 WIN = 1
-remaining_tiles = 'abcdefghiq'
+available_moves = 'abcdefghiq'
 
 board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
 guidelines = ['[a|b|c]', '[d|e|f]', '[g|h|i]']
@@ -25,10 +25,10 @@ def display_board():
 	print '[%s]' % '|'.join(board[2]) + " " + guidelines[2]
 
 def process_input(turn):
-	global remaining_tiles
+	global available_moves
 
 	inp = raw_input().lower()
-	while inp not in remaining_tiles or len(inp) != 1:
+	while inp not in available_moves or len(inp) != 1:
 		inp = raw_input().lower()
 	if inp == 'q':
 		print 'Thanks for playing!'
@@ -38,9 +38,9 @@ def process_input(turn):
 		x = flat_index/3
 		y = flat_index%3
 		board[x][y] = get_p(turn)
-		remaining_tiles = remaining_tiles.replace(inp, '')
+		available_moves = available_moves.replace(inp, '')
 
-def check_state(turn):
+def check_state():
 	wins = ['XXX', 'OOO']
 	b = board
 
@@ -71,7 +71,7 @@ def main():
 		print "Player %s's turn." % get_p(X_turn)
 		display_board()
 		process_input(X_turn)
-		state = check_state(X_turn)
+		state = check_state()
 		if state == NOT_OVER:
 			X_turn = not X_turn
 			clear()
