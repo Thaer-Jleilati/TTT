@@ -5,7 +5,10 @@ DRAW = -1
 NOT_OVER = 0
 WIN = 1
 
-GUIDELINES = ['[a|b|c]', '[d|e|f]', '[g|h|i]']
+GUIDELINES = ['[q|x|e]', '[a|s|d]', '[z|x|c]']
+INDEX_DICT={'q':(0, 0), 'x':(0, 1), 'e':(0, 2),
+		    'a':(1, 0), 's':(1, 1), 'd':(1, 2),
+		    'z':(2, 0), 'x':(2, 1), 'c':(2, 2)}
 
 def stringify_raw_board(board):
 	s = ''
@@ -45,9 +48,7 @@ def get_p(turn):
 	return 'X' if turn else 'O'
 
 def apply_move_to_board(board, move, turn):
-	flat_index = ord(move) - ord('a')
-	x = flat_index / 3
-	y = flat_index % 3
+	x, y = INDEX_DICT[move]
 	board[x][y] = get_p(turn)
 
 def get_play_again(players):
@@ -75,7 +76,7 @@ def play_game(X, O, starting_turn):
 	players = [X, O]
 	X_turn = starting_turn
 	board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
-	available_moves = 'abcdefghiq'
+	available_moves = 'qweasdzxcp'
 
 	#run game
 	while True:
@@ -90,7 +91,7 @@ def play_game(X, O, starting_turn):
 		move = current_player.recv(1)
 
 		print "Got move", move
-		if move == 'q':
+		if move == QUIT_KEY:
 			other_player.sendall(TAG_QUIT)
 			return False
 

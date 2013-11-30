@@ -1,7 +1,7 @@
 import socket, subprocess, sys, os
 from constants import *
 
-PLAY_AGAIN_INSTRUCTIONS = "R to play again, Q to quit"
+PLAY_AGAIN_INSTRUCTIONS = "R to play again, %s to quit" % QUIT_KEY_UPPER
 
 #clear display, only works on unix
 def clear():
@@ -45,14 +45,14 @@ def get_game_state_from_server(conn):
 def run_turn(conn, data, my_ID):
 	board, turn, available_moves = data.split(DELIM)
 	clear()
-	print 'Welcome to Tic-Tac-Toe! You are player %s. Q to quit\n' % my_ID
+	print 'Welcome to Tic-Tac-Toe! You are player %s. %s to quit\n' % (my_ID, QUIT_KEY_UPPER)
 	print board
 
 	if turn == my_ID:
 		print 'Your turn! Move:'
 		move = get_move(board, available_moves)
 		conn.sendall(move)
-		if move == 'q':
+		if move == QUIT_KEY:
 			print "Thanks for playing!"
 			return False
 	else:

@@ -2,6 +2,8 @@ DEFAULT_ADDRESS = "127.0.0.1"
 SERVER_PORT = 30000
 DATA_LEN = 100
 DELIM = '@' #how data in server-client messages is separated
+QUIT_KEY = 'p'
+QUIT_KEY_UPPER = QUIT_KEY.upper()
 
 #tag messages with these
 TAG_NORMAL = 'N'
