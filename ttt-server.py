@@ -1,4 +1,4 @@
-import socket
+import socket, sys
 from constants import *
 
 DRAW = -1
@@ -44,19 +44,41 @@ def check_state(b):
 def get_p(turn):
 	return 'X' if turn else 'O'
 
+def apply_move_to_board(board, move, turn):
+	flat_index = ord(move) - ord('a')
+	x = flat_index / 3
+	y = flat_index % 3
+	board[x][y] = get_p(turn)
+
+def get_play_again(players):
+	print "Getting 'play again?'' from other clients"
+	play1 = players[0].recv(2)
+	play2 = players[1].recv(2)
+
+	if play1 == play2 == TAG_RESTART:
+		print "Restarting game"
+		for player in players:
+			player.sendall(TAG_RESTART)
+		return True
+	else:
+		print "Ending game"
+		for player in players:
+			player.sendall(TAG_QUIT)
+		return False
+
 def play_game(X, O, starting_turn):
 	print "Sending tags to players"
 	X.sendall('X')
 	O.sendall('O')
 
+	#init game data
 	players = [X, O]
 	X_turn = starting_turn
-
 	board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
 	available_moves = 'abcdefghiq'
 
-	running = True
-	while running:
+	#run game
+	while True:
 		print "Sending game data to players"
 		for player in players:
 			player.sendall(TAG_NORMAL + stringify_board(board) + DELIM + get_p(X_turn) + DELIM + available_moves)
@@ -66,47 +88,38 @@ def play_game(X, O, starting_turn):
 
 		print "Getting move from player %s" % get_p(X_turn)
 		move = current_player.recv(1)
+
 		print "Got move", move
 		if move == 'q':
-			running = False
 			other_player.sendall(TAG_QUIT)
 			return False
-		flat_index = ord(move) - ord('a')
-		x = flat_index / 3
-		y = flat_index % 3
-		board[x][y] = get_p(X_turn)
-		available_moves = available_moves.replace(move, "")
+
+		apply_move_to_board(board, move, X_turn)
+		available_moves.replace(move, "")
 
 		state = check_state(board)
+
+		#next turn starts
 		if state == NOT_OVER:
+			print "Next turn"
 			X_turn = not X_turn
+
+		#handle game over	
 		else:
 			print "Game over. Sending result to clients"
-			running = False
 			raw_board = stringify_raw_board(board)
 
 			if state == DRAW:
 				for player in players:
 					player.sendall(TAG_DRAW + raw_board)
+
 			elif state == WIN:
 				print "WIN for %s" % get_p(X_turn)
 				current_player.sendall(TAG_WIN + raw_board)
 				other_player.sendall(TAG_LOSS + raw_board)
 
-			print "Getting 'play again?'' from other clients"
-			play1 = X.recv(2)
-			play2 = O.recv(2)
-
-			if play1 == play2 == TAG_RESTART:
-				print "Restarting game"
-				for player in players:
-					player.sendall(TAG_RESTART)
-				return True
-			else:
-				print "Ending game"
-				for player in players:
-					player.sendall(TAG_QUIT)
-				return False
+			play_again = get_play_again(players)
+			return play_again
 
 def host_clients(server):
 	print "Waiting for players to connect..."
@@ -131,10 +144,14 @@ def main():
 	#create server
 	print "Running server"
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.bind(("127.0.0.1", SERVER_PORT))
+	try: server.bind(("127.0.0.1", SERVER_PORT))
+	except: 
+		print "Bind error. Is port already in use?"
+		sys.exit(1)
 	server.listen(5)
 
 	try:
+		#try to connect to clients and run game
 		while True: host_clients(server)
 	except KeyboardInterrupt:
 		print "Shutting down server."
