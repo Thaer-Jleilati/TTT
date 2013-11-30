@@ -144,7 +144,7 @@ def main():
 	#create server
 	print "Running server"
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	try: server.bind(("127.0.0.1", SERVER_PORT))
+	try: server.bind(("", SERVER_PORT))
 	except: 
 		print "Bind error. Is port already in use?"
 		sys.exit(1)

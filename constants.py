@@ -1,5 +1,5 @@
 DEFAULT_ADDRESS = "127.0.0.1"
-SERVER_PORT = 30107
+SERVER_PORT = 30000
 DATA_LEN = 100
 DELIM = '@' #how data in server-client messages is separated
 

@@ -5,7 +5,10 @@ PLAY_AGAIN_INSTRUCTIONS = "R to play again, Q to quit"
 
 #clear display, only works on unix
 def clear():
-	subprocess.call('cls' if os.name == 'nt' else 'clear')
+	if os.name == 'nt':
+		os.system('cls')
+	else:
+		subprocess.call('clear')
 
 def get_move(board, available_moves):
 	inp = raw_input().lower()
@@ -78,7 +81,7 @@ def get_play_again(conn):
 
 def main():
 	if len(sys.argv) > 1:
-		conn, my_ID = connect_to_server(argv[1])
+		conn, my_ID = connect_to_server(sys.argv[1])
 	else:
 		conn, my_ID = connect_to_server(DEFAULT_ADDRESS)
 	
