@@ -1,2 +1,1 @@
-try to run on different machines!
 check how to run across different networks!
